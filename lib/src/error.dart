@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class ServiceError {
   late Map _data;
   Object? originalError;
@@ -44,7 +46,11 @@ class ServiceError {
   ServiceError.userAbort(String error) : this(-1, error, "User abort");
 
   @override
-  String toString() => "$runtimeType($_data)";
+  // String toString() => "$runtimeType($_data)";
+  String toString(){
+    var map = {"kind": "ServiceError", "reason": reason, "statusCode": statusCode, "error": error};
+    return json.encode(map);
+  }
 
   Map toJson() => _data;
   Map? get reasonObject => _data["reasonObject"];
