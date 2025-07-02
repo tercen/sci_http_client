@@ -238,7 +238,6 @@ class HttpIOClient implements api.HttpClient {
 
   @override
   void close({bool? force}) {
-
     if (force != null && force) client.close();
   }
 
@@ -266,9 +265,27 @@ class HttpIOClient implements api.HttpClient {
       {Map<String, String>? headers,
       body,
       String? responseType,
-      Encoding encoding = utf8}) {
-    throw UnimplementedError();
+      Encoding encoding = utf8}) async {
+    var uri = url is Uri ? url : Uri.parse(url as String);
+    var request = http.Request("GET", uri);
+    if (body != null) request.body = body as String;
+    if (headers != null) {
+      request.headers.addAll(headers);
+    }
+    request.encoding = encoding;
+    var streamedResponse = await client.send(request);
+
+    return IOStreamResponse(streamedResponse.statusCode,
+        streamedResponse.headers, streamedResponse.stream);
   }
+}
+
+class IOStreamResponse implements api.StreamResponse {
+  int? statusCode;
+  Map headers;
+  Stream stream;
+
+  IOStreamResponse(this.statusCode, this.headers, this.stream);
 }
 
 class IOResponse extends api.Response {
